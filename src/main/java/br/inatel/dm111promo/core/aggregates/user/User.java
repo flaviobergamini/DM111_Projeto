@@ -1,4 +1,4 @@
-package br.inatel.dm111promo.core.aggregates.UserAggregate;
+package br.inatel.dm111promo.core.aggregates.user;
 
 //{
 //    "id": "",

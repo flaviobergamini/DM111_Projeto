@@ -2,6 +2,7 @@ package br.inatel.dm111promo.api.controller;
 
 import br.inatel.dm111promo.core.aggregates.promotion.PromotionAggregate;
 import br.inatel.dm111promo.core.models.ApiExceptionModel;
+import br.inatel.dm111promo.core.models.PromotionByUserModel;
 import br.inatel.dm111promo.core.models.PromotionRequestModel;
 import br.inatel.dm111promo.core.models.PromotionResponseModel;
 import br.inatel.dm111promo.core.services.PromotionService;
@@ -45,6 +46,14 @@ public class PromotionController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/promotions/users/{userId}")
+    public ResponseEntity<PromotionByUserModel> getPromotionsForUser(@PathVariable("userId") String userId) throws ExecutionException, InterruptedException {
+        var response = this._promotionService.getPromotionsForUser(userId);
+
+        return ResponseEntity.ok(response);
+    }
+
 
     @PostMapping("/promotions")
     public ResponseEntity<PromotionResponseModel> postPromotion(@RequestBody PromotionRequestModel request) throws ParseException {

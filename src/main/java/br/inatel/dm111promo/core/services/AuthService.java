@@ -1,6 +1,6 @@
 package br.inatel.dm111promo.core.services;
 
-import br.inatel.dm111promo.core.aggregates.UserAggregate.User;
+import br.inatel.dm111promo.core.aggregates.user.User;
 import br.inatel.dm111promo.core.models.ApiExceptionModel;
 import br.inatel.dm111promo.core.enums.AppErrorCode;
 import br.inatel.dm111promo.core.models.AuthRequest;

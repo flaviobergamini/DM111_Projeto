@@ -1,28 +1,31 @@
 package br.inatel.dm111promo.core.services;
 
+import br.inatel.dm111promo.core.aggregates.product.ProductAggregate;
 import br.inatel.dm111promo.core.enums.AppErrorCode;
 import br.inatel.dm111promo.core.interfaces.IPromotionRepository;
 import br.inatel.dm111promo.core.aggregates.promotion.PromotionAggregate;
+import br.inatel.dm111promo.core.interfaces.ISupermarketRepository;
 import br.inatel.dm111promo.core.models.ApiExceptionModel;
+import br.inatel.dm111promo.core.models.PromotionByUserModel;
 import br.inatel.dm111promo.core.models.PromotionRequestModel;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 @Service
 public class PromotionService {
 
+    private final int MINIMUM_FREQUENCY = 2;
     private final IPromotionRepository _promotionRepository;
+    private final ISupermarketRepository _supermarketRepository;
 
-    public PromotionService(IPromotionRepository promotionRepository)
+    public PromotionService(IPromotionRepository promotionRepository, ISupermarketRepository supermarketRepository)
     {
         this._promotionRepository = promotionRepository;
+        this._supermarketRepository = supermarketRepository;
     }
 
     public List<PromotionAggregate> searchPromotions() throws ApiExceptionModel{
@@ -35,7 +38,6 @@ public class PromotionService {
                 if(actualDate.compareTo(promotion.getStarting()) >= 0 && actualDate.compareTo(promotion.getExpiration()) <= 0)
                     response.add(promotion);
             }
-
 
             return response;
         } catch (ExecutionException | InterruptedException e) {
@@ -87,6 +89,54 @@ public class PromotionService {
         this._promotionRepository.update(promotion);
 
         return promotion;
+    }
+
+    public PromotionByUserModel getPromotionsForUser(String userId) throws ExecutionException, InterruptedException {
+        var promotions = this._promotionRepository.findAll();
+        var actualDate = new Date();
+        List<PromotionAggregate> validPromotions = new ArrayList<>();
+
+        for(var promotion : promotions){
+            if(actualDate.compareTo(promotion.getStarting()) >= 0 && actualDate.compareTo(promotion.getExpiration()) <= 0)
+                validPromotions.add(promotion);
+        }
+
+        var supermarketlist = this._supermarketRepository.findByUserId(userId);
+
+        List<ProductAggregate> productsPromotion = new ArrayList<>();
+        List<String> productsSupermarket = new ArrayList<>();
+
+        for(var promotion: validPromotions){
+            productsPromotion.addAll(promotion.getProducts());
+        }
+
+        for(var supermarket: supermarketlist){
+            productsSupermarket.addAll(supermarket.getProducts());
+        }
+
+        List<ProductAggregate> productsForYou = new ArrayList<>();
+
+        var simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        for(var product: productsPromotion){
+            for(var productSupermarket : productsSupermarket){
+                if(productSupermarket.contains(product.getProductId())){
+                    productsForYou.add(product);
+                }
+            }
+        }
+
+        var response = new PromotionByUserModel(
+                validPromotions.get(0).getId(),
+                validPromotions.get(0).getName(),
+                simpleDateFormat.format(validPromotions.get(0).getStarting()),
+                simpleDateFormat.format(validPromotions.get(0).getExpiration()),
+                productsForYou,
+                productsPromotion
+        );
+
+        return response;
+
     }
 
     public void removePromotion(String id) throws ApiExceptionModel {

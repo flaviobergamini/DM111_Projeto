@@ -1,6 +1,6 @@
 package br.inatel.dm111promo.infrastructure.repositories;
 
-import br.inatel.dm111promo.core.aggregates.UserAggregate.User;
+import br.inatel.dm111promo.core.aggregates.user.User;
 import com.google.cloud.firestore.Firestore;
 import org.springframework.stereotype.Component;
 
