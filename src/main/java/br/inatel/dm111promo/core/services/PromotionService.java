@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -26,14 +27,30 @@ public class PromotionService {
 
     public List<PromotionAggregate> searchPromotions() throws ApiExceptionModel{
         try {
-            return this._promotionRepository.findAll();
+            var promotions = this._promotionRepository.findAll();
+            var actualDate = new Date();
+            List<PromotionAggregate> response = new ArrayList<>();
+
+            for(var promotion : promotions){
+                if(actualDate.compareTo(promotion.getStarting()) >= 0 && actualDate.compareTo(promotion.getExpiration()) <= 0)
+                    response.add(promotion);
+            }
+
+
+            return response;
         } catch (ExecutionException | InterruptedException e) {
             throw new ApiExceptionModel(AppErrorCode.PROMOTIONS_QUERY_ERROR);
         }
     }
 
-    public PromotionAggregate getPromotionById(String id) throws ApiExceptionModel {
-        return retrievePromotion(id);
+    public PromotionAggregate getPromotionById(String id) throws ApiExceptionModel, ExecutionException, InterruptedException {
+        var promotion = this._promotionRepository.findById(id);
+        var actualDate = new Date();
+
+        if(!promotion.isEmpty() && actualDate.compareTo(promotion.get().getStarting()) >= 0 && actualDate.compareTo(promotion.get().getExpiration()) <= 0)
+            return promotion.get();
+        else
+            throw new ApiExceptionModel(AppErrorCode.PROMOTION_NOT_FOUND);
     }
 
     public PromotionAggregate createPromotion(PromotionRequestModel request) throws ParseException {
@@ -79,7 +96,6 @@ public class PromotionService {
             throw new ApiExceptionModel(AppErrorCode.PROMOTIONS_QUERY_ERROR);
         }
     }
-
 
     private PromotionAggregate retrievePromotion(String id) throws ApiExceptionModel {
         try {

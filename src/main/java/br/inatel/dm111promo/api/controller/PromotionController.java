@@ -13,6 +13,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/dm111")
@@ -26,7 +27,7 @@ public class PromotionController {
     }
 
     @GetMapping("/promotion/{id}")
-    public ResponseEntity<PromotionResponseModel> getPromotionById (@PathVariable("id") String id) throws ApiExceptionModel {
+    public ResponseEntity<PromotionResponseModel> getPromotionById (@PathVariable("id") String id) throws ApiExceptionModel, ExecutionException, InterruptedException {
         var promotion = this._promotionService.getPromotionById(id);
 
         return ResponseEntity.ok(promotionResponseConverter(promotion));
