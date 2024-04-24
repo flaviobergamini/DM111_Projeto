@@ -7,7 +7,9 @@ import br.inatel.dm111promo.core.models.ApiExceptionModel;
 import br.inatel.dm111promo.core.models.PromotionRequestModel;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
@@ -34,15 +36,17 @@ public class PromotionService {
         return retrievePromotion(id);
     }
 
-    public PromotionAggregate createPromotion(PromotionRequestModel request){
+    public PromotionAggregate createPromotion(PromotionRequestModel request) throws ParseException {
         var id = UUID.randomUUID().toString();
-        var formatter = new SimpleDateFormat("dd/MM/yyyy");
+        var simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        var starting = simpleDateFormat.parse(request.starting());
+        var expiration = simpleDateFormat.parse(request.expiration());
 
         var promotion = new PromotionAggregate(
                 id,
                 request.name(),
-                request.starting(),
-                request.expiration(),
+                starting,
+                expiration,
                 request.products()
         );
 
@@ -51,14 +55,16 @@ public class PromotionService {
         return promotion;
     }
 
-    public PromotionAggregate updatePromotion(String id, PromotionRequestModel request) throws ApiExceptionModel {
+    public PromotionAggregate updatePromotion(String id, PromotionRequestModel request) throws ApiExceptionModel, ParseException {
         var promotion = retrievePromotion(id);
 
-        var formatter = new SimpleDateFormat("dd/MM/yyyy");
+        var simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        var starting = simpleDateFormat.parse(request.starting());
+        var expiration = simpleDateFormat.parse(request.expiration());
 
         promotion.setName(request.name());
-        promotion.setStarting(request.starting());
-        promotion.setExpiration(request.expiration());
+        promotion.setStarting(starting);
+        promotion.setExpiration(expiration);
         promotion.setProducts(request.products());
 
         this._promotionRepository.update(promotion);

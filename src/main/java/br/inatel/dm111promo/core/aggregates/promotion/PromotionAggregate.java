@@ -3,18 +3,19 @@ package br.inatel.dm111promo.core.aggregates.promotion;
 
 import br.inatel.dm111promo.core.aggregates.product.ProductAggregate;
 
+import java.util.Date;
 import java.util.List;
 
 public class PromotionAggregate {
     private String id;
     private String name;
-    private String starting;
-    private String expiration;
+    private Date starting;
+    private Date expiration;
     private List<ProductAggregate> products;
 
     public PromotionAggregate(){}
 
-    public PromotionAggregate(String id, String name, String starting, String expiration, List<ProductAggregate> products) {
+    public PromotionAggregate(String id, String name, Date starting, Date expiration, List<ProductAggregate> products) {
         this.id = id;
         this.name = name;
         this.starting = starting;
@@ -38,19 +39,19 @@ public class PromotionAggregate {
         this.name = name;
     }
 
-    public String getStarting() {
+    public Date getStarting() {
         return starting;
     }
 
-    public void setStarting(String starting) {
+    public void setStarting(Date starting) {
         this.starting = starting;
     }
 
-    public String getExpiration() {
+    public Date getExpiration() {
         return expiration;
     }
 
-    public void setExpiration(String expiration) {
+    public void setExpiration(Date expiration) {
         this.expiration = expiration;
     }
 
